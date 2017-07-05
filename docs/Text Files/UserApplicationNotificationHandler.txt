@@ -1,0 +1,19 @@
+//This is the function that runs when it receives request for Light Data
+
+void NotificationHandler( ){
+  if (CheckPolicy()){
+    //Function uses API exposed by Sensors group. 
+    GetCurrentGPSLocationAndTimestamp( );
+     //Function uses API exposed by Sensors group. 
+    GetCurrentAmbientLightData( );
+    if(All Data Available ?){
+      FormDataPacket( );
+      SendData();
+    }
+    else
+      return exit;
+  }
+  else 
+    return exit;
+  return exit;
+}

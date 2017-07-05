@@ -1,0 +1,11 @@
+GestureHandler(){
+  if(Gesture 1 ?){
+    ToggleLEDLamp( );
+  }
+  else if (Gesture 2 ?){
+    GetMostEffecientPath( start , end );
+  }
+  else {
+    exit
+  }
+}

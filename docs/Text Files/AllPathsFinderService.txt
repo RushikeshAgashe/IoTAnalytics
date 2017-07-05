@@ -1,0 +1,13 @@
+AllPathsFinderService(start, end) {
+  start_node = mapCoordinateToGraph(start);
+  end_node = mapCoordinateToGraph(end);
+  
+  if (outofrange(start_node) or outorrange(end_node)) response = err;
+  else {
+    allPaths = findAllGraphPaths(start_node, end_node);
+    response = convertNodesToCoords(allPaths);
+  }
+  
+  sendData(response);
+  return exit;
+}

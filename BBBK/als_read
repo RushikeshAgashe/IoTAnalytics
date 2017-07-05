@@ -1,0 +1,116 @@
+#!/bin/bash
+
+#ALS and LED control program
+
+#(C) 2017, Bo Gao
+
+#Syntax: ./als_read threshold_low threshold_high override
+#threshold_low is the ALS value where LED is turned on
+#threshold_high is the ALS value where LED is turned off
+#override can be "on", "off", and "none"
+#When override is "on" or "off", LED is on/off regardless ALS
+#When override is "none", LED is controlled by ALS and thresholds
+#Example calling: "./als_read 20 200 none"
+
+#This program prints ALS rading, LED status and overriding status
+#ALS reading is logarithmically scaled to 0~255
+#LED status is "on" or "off"
+#Overriding status is either "override" or "automatic"
+#If ALS reading is between thresholds, overriding is "automatic"
+#If ALS decision conforms to override input, overriding is "automatic"
+#Only when ALS decision contradicts override input, overriding is "override"
+#Example output: "100, on, override"
+
+#Program returns 0 when succeed, 1 with invalid arguments
+#Program allows only 1 instance, and this is enforced with a lock
+#When this program tries to acquire a lock and timed out, 2 is returned
+
+#Pins used: I2C2 for ALS, GPIO60 for LED
+
+#Syntax check
+if [ "$#" -ne 3 ]; then
+	exit 1;
+fi
+
+#Lock common resource
+cnt=0
+while [ -e als_lock ]; do
+	sleep 0.1
+	cnt=$((cnt+1))
+	if [ "$cnt" -ge "10" ]; then
+		exit 2;
+	fi
+done
+touch als_lock
+trap "rm -f als_lock; exit" INT TERM EXIT
+
+#Read ALS
+all=$(printf "%d" `i2cget -y 2 0x29 0xac w`)
+inf=$(printf "%d" `i2cget -y 2 0x29 0xae w`)
+vis=$(echo "$all - $inf" | bc)
+
+#Scale ALS output
+if [ "$vis" -le "0" ]; then
+	vis=1
+fi
+vis=$(printf %.0f $(echo "l($vis)*25.5+0.5" | bc -l))
+if [ "$vis" -gt "255" ]; then
+	vis=255
+fi
+
+#Decision based on ALS
+if [ "$vis" -lt "$1" ]; then
+	s1=1
+elif [ "$vis" -gt "$2" ]; then
+	s1=0
+else
+	s1=2
+fi
+
+#Decision based on overriding
+#Override on
+if [ "$3" = "on" ]; then
+	echo 1 > /sys/class/gpio/gpio60/value
+	led="on"
+	s2=1
+#Override off
+elif [ "$3" = "off" ]; then
+	echo 0 > /sys/class/gpio/gpio60/value
+	led="off"
+	s2=0
+#Non override on
+elif [ "$s1" -eq "1" ]; then
+	echo 1 > /sys/class/gpio/gpio60/value
+	led="on"
+	s2="$s1"
+#Non override off
+elif [ "$s1" -eq "0" ]; then
+	echo 0 > /sys/class/gpio/gpio60/value
+	led="off"
+	s2="$s1"
+#Non override keep
+else
+	ret=$(cat /sys/class/gpio/gpio60/value)
+	if [ "$ret" -eq "0" ]; then
+		led="off"
+	else
+		led="on"
+	fi
+	s2="$s1"
+fi
+
+#Override detection
+if [ "$s1" = "$s2" ]; then
+	mode="automatic"
+elif [ "$s1" -eq "2" ]; then
+	mode="automatic"
+else
+	mode="override"
+fi
+
+#Print result
+printf "%d, %s, %s\n" "$vis" "$led" "$mode"
+
+#Release lock file
+rm -f als_lock
+exit 0

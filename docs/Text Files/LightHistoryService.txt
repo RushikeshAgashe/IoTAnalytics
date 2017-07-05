@@ -1,0 +1,14 @@
+LightHistoryService(path) {
+  avg_lights = empty list;
+  for (link = firstCoordPair(path); not at last pair; link = next pair) {
+    waypoints = GetWaypointsBetween(link.start, link.end);
+    sum_of_light = sum of most recent light levels 
+    for each waypoint in link from database;
+    dist = number of waypoints;
+    avg_light = sum_of_light / dist;
+    avg_lights.append(avg_light);
+  }
+  
+  SendData(avg_lights);
+  return exit;
+}

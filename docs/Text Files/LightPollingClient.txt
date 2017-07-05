@@ -1,0 +1,13 @@
+LightPollingClient() {
+  while (true) {
+    broadcastLightDataDiscovery();
+    sleep a few seconds
+  }
+  
+  return;
+};
+
+LightResponseHandler(gps, light, time) {
+  addToDatabase(gps, light, time);
+  return exit;
+}

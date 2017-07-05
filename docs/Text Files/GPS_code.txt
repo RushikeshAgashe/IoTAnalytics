@@ -1,0 +1,47 @@
+35.773633 , -78.674069
+
+
+35.770951, -78.676235
+
+35.772292 , -78.675152
+
+0.84622785778605567029035387448078
+
+1.17498469439146671813827974*R
+
+0.84622785778605567029035387448078
+
+-0.09818674522747411493970200524283*R
+
+35.771009, -78.676145
+
+35.77105449087209, -78.676235608597
+
+from math import radians, cos, sin, asin, sqrt, atan2, degrees
+def getEndpoint(lat1,lon1,bearing,d):
+    R = 6371                     #Radius of the Earth
+    brng = radians(bearing) #convert degrees to radians
+    d = d*1.852                  #convert nautical miles to km
+    lat1 = radians(lat1)    #Current lat point converted to radians
+    lon1 = radians(lon1)    #Current long point converted to radians
+    lat2 = asin( sin(lat1)*cos(d/R) +  cos(lat1)*sin(d/R)*cos(brng))
+    lon2 = lon1 + atan2(sin(brng)*sin(d/R)*cos(lat1),cos(d/R)-sin(lat1)*sin(lat2))
+    lat2 = degrees(lat2)
+    lon2 = degrees(lon2)
+    return lat2,lon2
+
+def calcBearing(lat1, lon1, lat2, lon2):
+    dLon = lon2 - lon1
+    y = sin(dLon) * cos(lat2)
+    x = cos(lat1) * sin(lat2) \
+        - sin(lat1) * cos(lat2) * cos(dLon)
+    return atan2(y, x)
+
+lat2 = 35.773633 
+lat1 = 35.770951
+lon2 = -78.674069
+lon1 = -78.676235
+bearing = calcBearing(lat1,lon1,lat2,lon2)
+d = 0.00621371
+answer = getEndpoint(lat1,lon1,bearing,d)
+print answer

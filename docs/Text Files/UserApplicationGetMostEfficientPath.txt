@@ -1,0 +1,27 @@
+GetMostEfficientPath( start , end ){
+  //This is a request to the AllPathsFinderService in the cloud
+  GetAllPaths(start , end );
+  if ( received all paths ?){
+    // This is a request to the HistoryService in the cloud
+    RequestLightData(allPaths);
+  }
+  else {
+    ErrorHandler();
+    return exit;
+  }
+  
+  if (received light data 
+  along all paths ?)
+  {
+    // Sums up Light Values along the Path and divides by path distance
+    Find AverageAmbientLight(allPaths)
+  }
+  else {
+    ErrorHandler();
+    return exit;
+  }
+  finalPath = HighestAverageAmbientLight(allPaths);
+  // This service runs on the BBBK locally
+  Navigate(finalPath);
+  return exit;
+}

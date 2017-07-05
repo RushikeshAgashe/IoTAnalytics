@@ -1,0 +1,23 @@
+
+Navigate(endCoordinate){
+
+LOOP:	currentCoordinate,currentTimestamp = GetCurrentGPSLocationAndTimestamp();
+		nextCoordinate = GetNextCoordinate(currentCoordinate);
+		nextDirection = GetNextDirection (currentCoordinate);
+		if (nextCoordinate != NULL){
+			currentCoordinate,currentTimestamp = GetCurrentGPSLocationAndTimestamp();
+			currentBearing = CheckBearing(currentCoordinate, nextCoordinate);
+			if (currentBearing - expectedBearing > tolerance )
+				{return LOST!!}
+			else if(nextCoordinate - currentCoordinate < 10 m ){
+				SignalUser(nextDirection);
+				if(nextCoordinate == currentCoordinate)
+					reached = TRUE
+			}
+			goto LOOP
+			}
+		else
+			return exit;
+}
+
+

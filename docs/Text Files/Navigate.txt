@@ -1,0 +1,32 @@
+Navigate(path) {
+  prevCoord = first coord in path; //start
+  nextCoord = second coord in path; //first intersection
+  in_intersection = false;
+  while (not at destination) {
+    gps, time = GetCurrentGPSLocationAndTimestamp();
+    
+    if (getRestartGesture()) {
+      GetMostEfficientPath(gps, path.end);
+      return;
+    }
+    
+    if (in_intersection) {
+      if (exitedIntersection(prevCoord, gps)) {
+        in_intersection = false;
+        signalIfTurnCorrect(prevCoord, nextCoord, gps);
+      }
+    } else {
+      if (nearIntersection(nextCoord, gps)) {
+        direction = calculateTurn(prevCoord, nextCoord, coorDAfterNext);
+        signalTurn(direction);
+        in_intersection = true,
+        prevCoord = nextCoord, 
+        nextCoord = path.nextCoordinate;
+      } 
+    }
+    
+    sleep 1 second
+  }
+  
+  return exit;
+}
